@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from data.processor import Processor
 import json
 from types import SimpleNamespace
@@ -11,13 +11,17 @@ def root():
     return '<h1>Hello World!</h1><p>Welcome to the world of Flask!</p>'
 
 
+@app.route('/notfound')
+def notfound():
+    return render_template('notfound.html')
+
+
 @app.route('/hello')
 @app.route('/hello/<user>')
 def hello_world(user=None):
-    user = Processor.do_smth
-    user = user or 'Anonymous'
-    if request.args.get('user') is not None:
-        user = request.args.get('user')
+    user = Processor().find_user(user)
+    if user is None:
+        return redirect(url_for('notfound'))
     return render_template('index.html', user=user)
 
 
